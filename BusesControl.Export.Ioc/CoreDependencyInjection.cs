@@ -8,7 +8,9 @@ namespace BusesControl.Export.Ioc
     {
         public static void Register(this IServiceCollection services)
         {
-            services.AddSingleton<IExportService, ExportService>();
+            services.AddTransient<IExportService, ExportService>();
+            services.AddTransient<IContractExportService, ContractExportService>();
+            services.AddTransient<IFinancialExportService, FinancialExportService>();
         }
     }
 }

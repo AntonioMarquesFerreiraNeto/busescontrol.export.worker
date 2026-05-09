@@ -2,6 +2,7 @@
 using BusesControl.Export.Core.Enums;
 using BusesControl.Export.Core.Interfaces;
 using BusesControl.Export.Core.Request;
+using BusesControl.Export.Core.Responses;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
 
@@ -9,34 +10,74 @@ namespace BusesControl.Export.Core.Services
 {
     public class ExportService : IExportService
     {
-        public ExportService(ILogger<ExportService> logger)
+        public ExportService(
+            IContractExportService contractService, 
+            IFinancialExportService financialService, 
+            IExportRepository exportRepository,
+            IStorageRepository storageRepository,
+            ILogger<ExportService> logger
+        )
         {
+            _contractService = contractService;
+            _financialService = financialService;
+            _exportRepository = exportRepository;
+            _storageRepository = storageRepository;
             _logger = logger;
         }
 
+        private readonly IContractExportService _contractService;
+        private readonly IFinancialExportService _financialService;
+        private readonly IExportRepository _exportRepository;
+        private readonly IStorageRepository _storageRepository;
         private readonly ILogger _logger;
+
+        private async Task Update(ExportModel exportModel, ExportResponse exportResponse)
+        {
+            var success = exportResponse.Success;
+            var messageError = exportResponse.Message;
+
+            if (success)
+            {
+                await _storageRepository.Upload(exportResponse.File.Name, exportResponse.File.ContentType, exportResponse.File.Content);
+
+                exportModel.Status = ExportStatusEnum.Completed;
+                exportModel.ExpiresAt = DateTime.UtcNow.AddDays(30);
+                exportModel.ExportedAt = DateTime.UtcNow;
+                exportModel.Url = exportResponse.File.Name;
+            }
+            else
+            {
+                exportModel.Status = ExportStatusEnum.Failed;
+                exportModel.ErrorMessage = messageError;
+            }
+
+            await _exportRepository.Update(exportModel);
+        }
 
         public async Task<bool> Execute(string message)
         {
-            _logger.LogInformation("iniciando processamento da mensagem de exportação, request : {message}", message);
+            _logger.LogInformation("iniciando processamento da exportação, request : {message}", message);
 
             var exportRequest = JsonSerializer.Deserialize<ExportMessageRequest<ExportModel>>(message);
+            var exportResponse = new ExportResponse();
+
+            var exportModel = exportRequest.Content;
 
             switch (exportRequest.Content.Type) 
             {
                 case ExportTypeEnum.Contracts:
-                {
-                    //implementar exportação com closed e enviar ao storage.
-                }
+                    exportResponse = await _contractService.Execute(exportModel);
                 break;
                 case ExportTypeEnum.Financial:
-                {
-                    //implementar exportação com closed e enviar ao storage.
-                }
+                    exportResponse = await _financialService.Export(exportModel);
                 break;
             }
 
-            return await Task.FromResult(true);
+            await Update(exportModel, exportResponse);
+
+            _logger.LogInformation("exportação processada com sucesso, entity Id : {entityId}", exportModel.Id);
+
+            return true;
         }
     }
 }
