@@ -11,22 +11,25 @@ namespace BusesControl.Export.Core.Services
     public class ExportService : IExportService
     {
         public ExportService(
-            IContractExportService contractService, 
-            IFinancialExportService financialService, 
+            IContractExportService contractExportService, 
+            IFinancialExportService financialExportService, 
+            ICustomerExportService customerExportService,
             IExportRepository exportRepository,
             IStorageRepository storageRepository,
             ILogger<ExportService> logger
         )
         {
-            _contractService = contractService;
-            _financialService = financialService;
+            _contractExportService = contractExportService;
+            _financialExportService = financialExportService;
+            _customerExportService = customerExportService;
             _exportRepository = exportRepository;
             _storageRepository = storageRepository;
             _logger = logger;
         }
 
-        private readonly IContractExportService _contractService;
-        private readonly IFinancialExportService _financialService;
+        private readonly IContractExportService _contractExportService;
+        private readonly IFinancialExportService _financialExportService;
+        private readonly ICustomerExportService _customerExportService;
         private readonly IExportRepository _exportRepository;
         private readonly IStorageRepository _storageRepository;
         private readonly ILogger _logger;
@@ -66,10 +69,13 @@ namespace BusesControl.Export.Core.Services
             switch (exportRequest.Content.Type) 
             {
                 case ExportTypeEnum.Contracts:
-                    exportResponse = await _contractService.Execute(exportModel);
+                    exportResponse = await _contractExportService.Execute(exportModel);
                 break;
                 case ExportTypeEnum.Financial:
-                    exportResponse = await _financialService.Export(exportModel);
+                    exportResponse = await _financialExportService.Execute(exportModel);
+                break;
+                case ExportTypeEnum.Customers:
+                    exportResponse = await _customerExportService.Execute(exportModel);
                 break;
             }
 

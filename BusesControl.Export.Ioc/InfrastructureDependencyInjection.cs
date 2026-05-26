@@ -14,6 +14,7 @@ namespace BusesControl.Export.Ioc
             services.AddTransient<IContractRepository, ContractRepository>();
             services.AddTransient<IFinancialRepository, FinancialRepository>();
             services.AddTransient<IStorageRepository, StorageRepository>();
+            services.AddTransient<ICustomerRepository, CustomerRepository>();
         }
     }
 }

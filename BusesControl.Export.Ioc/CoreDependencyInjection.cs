@@ -11,6 +11,7 @@ namespace BusesControl.Export.Ioc
             services.AddTransient<IExportService, ExportService>();
             services.AddTransient<IContractExportService, ContractExportService>();
             services.AddTransient<IFinancialExportService, FinancialExportService>();
+            services.AddTransient<ICustomerExportService, CustomerExportService>();
         }
     }
 }

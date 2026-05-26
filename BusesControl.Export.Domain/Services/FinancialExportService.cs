@@ -18,7 +18,7 @@ namespace BusesControl.Export.Core.Services
         private readonly IFinancialRepository _financialRepository;
         private readonly ILogger _logger;
 
-        public async Task<ExportResponse> Export(ExportModel export)
+        public async Task<ExportResponse> Execute(ExportModel export)
         {
             try
             {
