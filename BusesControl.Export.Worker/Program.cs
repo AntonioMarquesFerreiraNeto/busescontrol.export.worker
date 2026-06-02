@@ -7,8 +7,9 @@ var builder = Host.CreateApplicationBuilder(args);
 builder.Services.Configure<Settings>(builder.Configuration);
 
 builder.Services.AddHostedService<ExportWorker>();
-CoreDependencyInjection.Register(builder.Services);
-InfrastructureDependencyInjection.Register(builder.Services);
+
+builder.Services.RegisterServices();
+builder.Services.RegisterInfrastructures();
 
 var host = builder.Build();
 host.Run();
