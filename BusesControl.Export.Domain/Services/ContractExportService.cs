@@ -1,4 +1,5 @@
 ﻿using BusesControl.Export.Core.Entities;
+using BusesControl.Export.Core.Enums;
 using BusesControl.Export.Core.Interfaces;
 using BusesControl.Export.Core.Responses;
 using ClosedXML.Excel;
@@ -7,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace BusesControl.Export.Core.Services
 {
-    public class ContractExportService : IContractExportService
+    public class ContractExportService : IExportProcessorService
     {
         public ContractExportService(IContractRepository contractRepository, ILogger<ContractExportService> logger)
         {
@@ -17,6 +18,8 @@ namespace BusesControl.Export.Core.Services
 
         private readonly IContractRepository _contractRepository;
         private readonly ILogger _logger;
+
+        public ExportTypeEnum Type => ExportTypeEnum.Contracts;
 
         public async Task<ExportResponse> Execute(ExportModel export)
         {

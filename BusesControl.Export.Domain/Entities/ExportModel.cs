@@ -13,5 +13,19 @@ namespace BusesControl.Export.Core.Entities
         public DateTime? ExportedAt { get; set; }
         public DateTime? ExpiresAt { get; set; }
         public string ErrorMessage { get; set; }
+
+        public void Complete(string fileName)
+        {
+            Status = ExportStatusEnum.Completed;
+            ExportedAt = DateTime.UtcNow;
+            ExpiresAt = DateTime.UtcNow.AddDays(15);
+            Url = fileName;
+        }
+
+        public void Fail(string message) 
+        {
+            Status = ExportStatusEnum.Failed;
+            ErrorMessage = message;
+        }
     }
 }

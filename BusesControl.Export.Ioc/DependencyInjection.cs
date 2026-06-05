@@ -8,15 +8,17 @@ namespace BusesControl.Export.Ioc
 {
     public static class DependencyInjection
     {
-        public static void RegisterServices(this IServiceCollection services)
+        public static IServiceCollection RegisterServices(this IServiceCollection services)
         {
             services.AddTransient<IExportService, ExportService>();
-            services.AddTransient<IContractExportService, ContractExportService>();
-            services.AddTransient<IFinancialExportService, FinancialExportService>();
-            services.AddTransient<ICustomerExportService, CustomerExportService>();
+            services.AddTransient<IExportProcessorService, ContractExportService>();
+            services.AddTransient<IExportProcessorService, FinancialExportService>();
+            services.AddTransient<IExportProcessorService, CustomerExportService>();
+
+            return services;
         }
 
-        public static void RegisterInfrastructures(this IServiceCollection services)
+        public static IServiceCollection RegisterInfrastructures(this IServiceCollection services)
         {
             services.AddTransient<IDbConnectionFactory, DbConnectionFactory>();
             services.AddTransient<IExportRepository, ExportRepository>();
@@ -24,6 +26,8 @@ namespace BusesControl.Export.Ioc
             services.AddTransient<IFinancialRepository, FinancialRepository>();
             services.AddTransient<IStorageRepository, StorageRepository>();
             services.AddTransient<ICustomerRepository, CustomerRepository>();
+
+            return services;
         }
     }
 }
